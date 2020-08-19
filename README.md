@@ -1,3 +1,4 @@
+# yunaetc2comp-1.0
 # Etc2Comp - Texture to ETC2 compressor
 
 Etc2Comp is a command line tool that converts textures (e.g. bitmaps)
