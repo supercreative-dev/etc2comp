@@ -92,6 +92,7 @@ public:
 		boolNormalizeXYZ = false;
 		mipmaps = 1;
 		mipFilterFlags = Etc::FILTER_WRAP_NONE;
+		limitArea = -1;
 	}
 
 	bool ProcessCommandLineArguments(int a_iArgs, const char *a_apstrArgs[]);
@@ -116,6 +117,7 @@ public:
 	bool boolNormalizeXYZ;
 	int mipmaps;
 	unsigned int mipFilterFlags;
+	unsigned int limitArea; // source image's area to determine etc compression format
 };
 
 #include "EtcFileHeader.h"
@@ -124,7 +126,6 @@ public:
 //
 int main(int argc, const char * argv[])
 {
-
 	static const bool USE_C_INTERFACE = false;
 
 	// this code tests for memory leaks
@@ -155,6 +156,7 @@ int main(int argc, const char * argv[])
 
 	unsigned int uiSourceWidth = sourceimage.GetWidth();
 	unsigned int uiSourceHeight = sourceimage.GetHeight();
+	bool containAlpha = sourceimage.GetContainAlpha();
 
 	if(commands.mipmaps != 1)
 	{
@@ -248,6 +250,19 @@ int main(int argc, const char * argv[])
 	}
 	else
 	{
+		// determining etc compression format by the condition below. (Width & Alpha)
+		if (commands.limitArea > 0)
+		{
+			if ((uiSourceWidth*uiSourceHeight) >= commands.limitArea)
+			{
+				commands.format = containAlpha ? Etc::Image::Format::RGBA8 : Etc::Image::Format::RGB8;
+			}
+			else
+			{
+				commands.format = Etc::Image::Format::RGBA8;
+			}
+		}
+
 		if (commands.verboseOutput)
 		{
 			printf("Encoding:\n");
@@ -722,6 +737,20 @@ bool Commands::ProcessCommandLineArguments(int a_iArgs, const char *a_apstrArgs[
 				}
 			}
 		}
+		else if (strcmp(a_apstrArgs[iArg], "-limitarea") == 0)
+		{
+			++iArg;
+
+			if (iArg >= (a_iArgs))
+			{
+				printf("Error: missing source_image parameter for -limitarea\n");
+				return true;
+			}
+			else
+			{
+				limitArea = atoi(a_apstrArgs[iArg]);
+			}
+		}
 		else if (a_apstrArgs[iArg][0] == '-')
         {
 			printf("Error: unknown option (%s)\n", a_apstrArgs[iArg]);
@@ -797,6 +826,8 @@ void Commands::PrintUsageMessage(void)
 	printf("                                  rgba, rgbx, rec709, numeric and normalxyz\n");
 	printf("    -format <etc_format>          ETC1, RGB8, SRGB8, RGBA8, SRGB8, RGB8A1,\n");
 	printf("                                  SRGB8A1 or R11\n");
+	printf("    -limitarea <width * height>   source image's area to determine a image compression format (default=-1)\n");
+	printf("                                  with out this the format is determined by -format\n");
 	printf("    -help                         prints this message\n");
 	printf("    -jobs or -j <thread_count>    specifies the number of threads (default=1)\n");
 	printf("    -normalizexyz                 normalize RGB to have a length of 1\n");

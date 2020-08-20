@@ -77,6 +77,11 @@ namespace Etc
 			return &m_pafrgbaPixels[a_uiRow*m_uiWidth + a_uiColumn];
 		}
 
+		inline bool GetContainAlpha(void)
+		{
+			return m_bcontainAlpha;
+		}
+
 	private:
 
 		void Read(int a_iPixelX = -1, int a_iPixelY = -1);
@@ -87,6 +92,7 @@ namespace Etc
 		unsigned int m_uiWidth;				// not necessarily block aligned
 		unsigned int m_uiHeight;			// not necessarily block aligned
 		ColorFloatRGBA *m_pafrgbaPixels;
+		bool m_bcontainAlpha;				// whether contains alpha or not
 
 	};
 

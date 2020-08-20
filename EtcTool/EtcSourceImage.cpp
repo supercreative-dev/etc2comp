@@ -46,6 +46,8 @@ namespace Etc
 		m_uiWidth = 0;
 		m_uiHeight = 0;
 		m_pafrgbaPixels = nullptr;
+		m_bcontainAlpha = false;
+
 
 		SetName(a_pstrFilename);
 
@@ -64,7 +66,7 @@ namespace Etc
 		m_uiWidth = a_uiSourceWidth;
 		m_uiHeight = a_uiSourceHeight;
 		m_pafrgbaPixels = a_pafrgbaSource;
-
+		m_bcontainAlpha = false;
 	}
 	// ----------------------------------------------------------------------------------------------------
 	//
@@ -90,6 +92,7 @@ namespace Etc
 		}
 		m_uiWidth = 0;
 		m_uiHeight = 0;
+		m_bcontainAlpha = false;
 	}
 	// ----------------------------------------------------------------------------------------------------
 	//
@@ -183,6 +186,7 @@ namespace Etc
 						unsigned short ushG = (pucPixel[2]<<8) + pucPixel[3];
 						unsigned short ushB = (pucPixel[4]<<8) + pucPixel[5];
 						unsigned short ushA = (pucPixel[6]<<8) + pucPixel[7];
+						if (ushA > 0) m_bcontainAlpha = true;
 
 						*pfrgbaPixel++ = ColorFloatRGBA((float)ushR / 65535.0f,
 														(float)ushG / 65535.0f,
