@@ -34,6 +34,7 @@ namespace Etc
 			INFER_FROM_FILE_EXTENSION,
 			PKM,
 			KTX,
+			SCX,	// Super Creative Tex..
 		};
 
 		File(const char *a_pstrFilename, Format a_fileformat, Image::Format a_imageformat,

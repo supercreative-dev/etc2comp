@@ -56,7 +56,7 @@ File::File(const char *a_pstrFilename, Format a_fileformat, Image::Format a_imag
 	if (m_fileformat == Format::INFER_FROM_FILE_EXTENSION)
 	{
 		// ***** TODO: add this later *****
-		m_fileformat = Format::KTX;
+		m_fileformat = Format::PKM;
 	}
 
 	m_imageformat = a_imageformat;
@@ -104,11 +104,12 @@ File::File(const char *a_pstrFilename, Format a_fileformat, Image::Format a_imag
 		strcpy(m_pstrFilename, a_pstrFilename);
 	}
 
+	// TODO. Determining a export file extension
 	m_fileformat = a_fileformat;
 	if (m_fileformat == Format::INFER_FROM_FILE_EXTENSION)
 	{
 		// ***** TODO: add this later *****
-		m_fileformat = Format::KTX;
+		m_fileformat = Format::PKM;
 	}
 
 	m_imageformat = a_imageformat;
@@ -159,7 +160,7 @@ File::File(const char *a_pstrFilename, Format a_fileformat)
 	if (m_fileformat == Format::INFER_FROM_FILE_EXTENSION)
 	{
 		// ***** TODO: add this later *****
-		m_fileformat = Format::KTX;
+		m_fileformat = Format::PKM;
 	}
 
 	FILE *pfile = fopen(m_pstrFilename, "rb");
@@ -353,7 +354,6 @@ void File::UseSingleBlock(int a_iPixelX, int a_iPixelY)
 //
 void File::Write()
 {
-
 	FILE *pfile = fopen(m_pstrFilename, "wb");
 	if (pfile == nullptr)
 	{
@@ -375,9 +375,9 @@ void File::Write()
 
 		unsigned int iResult = (int)fwrite(m_pMipmapImages[mip].paucEncodingBits.get(), 1, m_pMipmapImages[mip].uiEncodingBitsBytes, pfile);
 		if (iResult != m_pMipmapImages[mip].uiEncodingBitsBytes)
-	{
-		printf("Error: couldn't write Etc file (%s)\n", m_pstrFilename);
-		exit(1);
+		{
+			printf("Error: couldn't write Etc file (%s)\n", m_pstrFilename);
+			exit(1);
 		}
 	}
 

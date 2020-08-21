@@ -68,6 +68,55 @@ namespace Etc
 		Data m_data;
 	};
 
+
+	// ----------------------------------------------------------------------------------------------------
+	//
+	class FileHeader_Scx : public FileHeader
+	{
+	public:
+		FileHeader_Scx(File* a_pfile);
+
+		virtual void Write(FILE* a_pfile);
+		virtual ~FileHeader_Scx(void) {}
+
+	private:
+		typedef struct
+		{
+			char m_acMagicNumber[4];
+			char m_acVersion[2];
+
+			unsigned char m_ucDataType_msb;             // e.g. ETC1_RGB_NO_MIPMAPS
+			unsigned char m_ucDataType_lsb;
+
+			unsigned char m_ucExtendedWidth_msb;     //  padded to 4x4 blocks
+			unsigned char m_ucExtendedWidth_lsb;
+			unsigned char m_ucExtendedHeight_msb;    //  padded to 4x4 blocks
+			unsigned char m_ucExtendedHeight_lsb;
+
+			// original width, height
+			unsigned char m_ucOriginalWidth_msb;
+			unsigned char m_ucOriginalWidth_lsb;
+			unsigned char m_ucOriginalHeight_msb;
+			unsigned char m_ucOriginalHeight_lsb;
+
+			// x0, y0, x1, y1 for uv
+			unsigned char m_ucx0_msb;
+			unsigned char m_ucx0_lsb;
+			unsigned char m_ucy0_msb;
+			unsigned char m_ucy0_lsb;
+			unsigned char m_ucx1_msb;
+			unsigned char m_ucx1_lsb;
+			unsigned char m_ucy1_msb;
+			unsigned char m_ucy1_lsb;
+
+			// obfuscation key index
+			unsigned char m_ucObfusKeyIndex_msb;
+			unsigned char m_ucObfusKeyIndex_lsb;
+		} Data;
+
+		Data m_data;
+	};
+
 	// ----------------------------------------------------------------------------------------------------
 	//
     class FileHeader_Ktx : public FileHeader
