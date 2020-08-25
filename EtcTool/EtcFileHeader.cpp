@@ -64,18 +64,19 @@ namespace Etc
 
 	// ----------------------------------------------------------------------------------------------------
 	//
-	FileHeader_Scx::FileHeader_Scx(File* a_pfile)
+	FileHeader_St2::FileHeader_St2(File* a_pfile)
 	{
 		m_pfile = a_pfile;
 
-		static const char s_acMagicNumberData[4] = { 'P', 'K', 'M', ' ' };
-		static const char s_acVersionData[2] = { '1', '0' };
+		static const char s_acMagicNumberData[4] = { 'S', 'T', '2', ' ' };
+		static const char s_acVersionData[2] = { '2', '0' };
 
 		for (unsigned int ui = 0; ui < sizeof(s_acMagicNumberData); ui++)
 		{
 			m_data.m_acMagicNumber[ui] = s_acMagicNumberData[ui];
 		}
 
+		// 요거 버전정보로 뭘 하려고 했는가?
 		for (unsigned int ui = 0; ui < sizeof(s_acVersionData); ui++)
 		{
 			m_data.m_acVersion[ui] = s_acVersionData[ui];
@@ -89,6 +90,11 @@ namespace Etc
 		m_data.m_ucOriginalHeight_msb = (unsigned char)(m_pfile->GetSourceHeight() >> 8);
 		m_data.m_ucOriginalHeight_lsb = m_pfile->GetSourceHeight() & 0xFF;
 
+		m_data.m_ucExtendedWidth_msb = (unsigned char)(m_pfile->GetExtendedWidth() >> 8);
+		m_data.m_ucExtendedWidth_lsb = m_pfile->GetExtendedWidth() & 0xFF;
+		m_data.m_ucExtendedHeight_msb = (unsigned char)(m_pfile->GetExtendedHeight() >> 8);
+		m_data.m_ucExtendedHeight_lsb = m_pfile->GetExtendedHeight() & 0xFF;
+
 		// x0, y0, x1, y1 for uv
 		m_data.m_ucx0_msb = (unsigned char)(1 >> 8);
 		m_data.m_ucx0_lsb = 1 & 0xFF;
@@ -99,17 +105,12 @@ namespace Etc
 		m_data.m_ucy1_msb = (unsigned char)((1 + m_pfile->GetSourceHeight()) >> 8);
 		m_data.m_ucy1_lsb = (1 + m_pfile->GetSourceHeight()) & 0xFF;
 
-		m_data.m_ucExtendedWidth_msb = (unsigned char)(m_pfile->GetExtendedWidth() >> 8);
-		m_data.m_ucExtendedWidth_lsb = m_pfile->GetExtendedWidth() & 0xFF;
-		m_data.m_ucExtendedHeight_msb = (unsigned char)(m_pfile->GetExtendedHeight() >> 8);
-		m_data.m_ucExtendedHeight_lsb = m_pfile->GetExtendedHeight() & 0xFF;
-
 		// obfuscation key index
 		m_data.m_ucObfusKeyIndex_msb = (unsigned char)(0 >> 8);
 		m_data.m_ucObfusKeyIndex_lsb = 0 & 0xFF;
 	}
 
-	void FileHeader_Scx::Write(FILE* a_pfile)
+	void FileHeader_St2::Write(FILE* a_pfile)
 	{
 		fwrite(&m_data, sizeof(Data), 1, a_pfile);
 	}

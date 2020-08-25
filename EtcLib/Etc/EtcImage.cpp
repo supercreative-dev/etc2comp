@@ -73,17 +73,19 @@ namespace Etc
 		m_iNumTransparentPixels = 0;
 	}
 
+
 	// ----------------------------------------------------------------------------------------------------
 	// constructor using source image
 	// used to set state before Encode() is called
 	//
-	Image::Image(float *a_pafSourceRGBA, unsigned int a_uiSourceWidth,
-					unsigned int a_uiSourceHeight, 
-					ErrorMetric a_errormetric)
+	Image::Image(float* a_pafSourceRGBA,
+		unsigned int a_uiSourceWidth, unsigned int a_uiSourceHeight,
+		ErrorMetric a_errormetric)
 	{
 		m_encodingStatus = EncodingStatus::SUCCESS;
 		m_warningsToCapture = EncodingStatus::SUCCESS;
-		m_pafrgbaSource = (ColorFloatRGBA *) a_pafSourceRGBA;
+		m_pafrgbaSource = (ColorFloatRGBA*)a_pafSourceRGBA;
+
 		m_uiSourceWidth = a_uiSourceWidth;
 		m_uiSourceHeight = a_uiSourceHeight;
 
@@ -111,8 +113,60 @@ namespace Etc
 		m_iNumTranslucentPixels = 0;
 		m_iNumTransparentPixels = 0;
 		m_bVerboseOutput = false;
-
 	}
+
+
+	// ----------------------------------------------------------------------------------------------------
+	// constructor using source image
+	// used to set state before Encode() is called
+	//
+	Image::Image(float* a_pafSourceRGBA,
+		unsigned int a_uiSourceWidth, unsigned int a_uiSourceHeight,
+		ErrorMetric a_errormetric, Format a_format)
+	{
+		m_encodingStatus = EncodingStatus::SUCCESS;
+		m_warningsToCapture = EncodingStatus::SUCCESS;
+		m_pafrgbaSource = (ColorFloatRGBA*)a_pafSourceRGBA;
+
+		m_uiSourceWidth = a_uiSourceWidth;
+		m_uiSourceHeight = a_uiSourceHeight;
+
+		unsigned short customWidth = m_uiSourceWidth;
+		unsigned short customHeight = m_uiSourceHeight;
+
+		// add alpha border pixels top, left, right, and bottom if the format supports alpha by hp8840
+		if (a_format == Format::RGBA8)
+		{
+			customWidth += 2;
+			customHeight += 2;
+		}
+
+		m_uiExtendedWidth = CalcExtendedDimension(customWidth);
+		m_uiExtendedHeight = CalcExtendedDimension(customHeight);
+
+		m_uiBlockColumns = m_uiExtendedWidth >> 2;
+		m_uiBlockRows = m_uiExtendedHeight >> 2;
+
+		m_pablock = new Block4x4[GetNumberOfBlocks()];
+		assert(m_pablock);
+
+		m_format = Format::UNKNOWN;
+
+		m_encodingbitsformat = Block4x4EncodingBits::Format::UNKNOWN;
+		m_uiEncodingBitsBytes = 0;
+		m_paucEncodingBits = nullptr;
+
+		m_errormetric = a_errormetric;
+		m_fEffort = 0.0f;
+
+		m_iEncodeTime_ms = -1;
+
+		m_iNumOpaquePixels = 0;
+		m_iNumTranslucentPixels = 0;
+		m_iNumTransparentPixels = 0;
+		m_bVerboseOutput = false;
+	}
+
 
 	// ----------------------------------------------------------------------------------------------------
 	// constructor using encoding bits
@@ -176,7 +230,6 @@ namespace Etc
 				uiV += 4;
 			}
 		}
-
 	}
 
 	// ----------------------------------------------------------------------------------------------------
@@ -205,7 +258,6 @@ namespace Etc
 	//
 	Image::EncodingStatus Image::Encode(Format a_format, ErrorMetric a_errormetric, float a_fEffort, unsigned int a_uiJobs, unsigned int a_uiMaxJobs)
 	{
-
 		auto start = std::chrono::steady_clock::now();
 		
 		m_encodingStatus = EncodingStatus::SUCCESS;
@@ -254,7 +306,6 @@ namespace Etc
 		m_paucEncodingBits = new unsigned char[m_uiEncodingBitsBytes];
 
 		InitBlocksAndBlockSorter();
-
 
 		std::future<void> *handle = new std::future<void>[a_uiMaxJobs];
 
@@ -543,8 +594,7 @@ namespace Etc
 	// check for encoding warnings
 	//
 	void Image::InitBlocksAndBlockSorter(void)
-	{
-		
+	{	
 		FindEncodingWarningTypesForCurFormat();
 
 		// init each block

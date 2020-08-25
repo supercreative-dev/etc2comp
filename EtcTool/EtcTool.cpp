@@ -250,7 +250,7 @@ int main(int argc, const char * argv[])
 	}
 	else
 	{
-		// determining etc compression format by the condition below. (Width & Alpha)
+		// determining etc compression format by the condition below. (Image's Area & Alpha containing)
 		if (commands.limitArea > 0)
 		{
 			if ((uiSourceWidth*uiSourceHeight) >= commands.limitArea)
@@ -271,12 +271,13 @@ int main(int argc, const char * argv[])
 			printf("  error metric: %s\n", ErrorMetricToString(commands.e_ErrMetric));
 		}
 		Etc::Image image((float *)sourceimage.GetPixels(),
-							uiSourceWidth, uiSourceHeight,
-							commands.e_ErrMetric);
+			uiSourceWidth, uiSourceHeight, commands.e_ErrMetric, commands.format);
 		image.m_bVerboseOutput = commands.verboseOutput;
+
 		Etc::Image::EncodingStatus encStatus = Etc::Image::EncodingStatus::SUCCESS;
 		
-		encStatus = image.Encode(commands.format, commands.e_ErrMetric, commands.fEffort, commands.uiJobs,MAX_JOBS);
+		// commands.uiJobs
+		encStatus = image.Encode(commands.format, commands.e_ErrMetric, commands.fEffort, 1, MAX_JOBS);
 		if (commands.verboseOutput)
 		{
 			printf("  encode time = %dms\n", image.GetEncodingTimeMs());
@@ -304,7 +305,6 @@ int main(int argc, const char * argv[])
 				analysis.Compare(commands.apstrCompareFilename[uiComparison], commands.i_hPixel, commands.i_vPixel);
 			}
 		}
-
 	}
 
 	return 0;

@@ -81,9 +81,13 @@ namespace Etc
 		};
 
 		// constructor using source image
+		Image(float* a_pafSourceRGBA, unsigned int a_uiSourceWidth,
+			unsigned int a_uiSourceHeight, ErrorMetric a_errormetric);
+
+		// constructor using source image
 		Image(float *a_pafSourceRGBA, unsigned int a_uiSourceWidth,
 				unsigned int a_uiSourceHeight,
-				ErrorMetric a_errormetric);
+				ErrorMetric a_errormetric, Format a_format);
 
 		// constructor using encoding bits
 		Image(Format a_format, 

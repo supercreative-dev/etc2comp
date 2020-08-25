@@ -85,7 +85,70 @@ File::File(const char *a_pstrFilename, Format a_fileformat, Image::Format a_imag
 		assert(0);
 		break;
 	}
+}
 
+// ----------------------------------------------------------------------------------------------------
+//
+File::File(const char* a_pstrFilename, Format a_fileformat, Image::Format a_imageformat,
+	unsigned char* a_paucEncodingBits, unsigned int a_uiEncodingBitsBytes,
+	unsigned int a_uiSourceWidth, unsigned int a_uiSourceHeight,
+	unsigned int a_uiExtendedWidth, unsigned int a_uiExtendedHeight,
+	unsigned int a_uix0, unsigned int a_uiy0,
+	unsigned int a_uix1, unsigned int a_uiy1,
+	unsigned int a_uiKeyIndex)
+{
+	if (a_pstrFilename == nullptr)
+	{
+		m_pstrFilename = const_cast<char*>("");
+	}
+	else
+	{
+		m_pstrFilename = new char[strlen(a_pstrFilename) + 1];
+		strcpy(m_pstrFilename, a_pstrFilename);
+	}
+
+	m_fileformat = a_fileformat;
+	if (m_fileformat == Format::INFER_FROM_FILE_EXTENSION)
+	{
+		// ***** TODO: add this later *****
+		m_fileformat = Format::ST2;
+	}
+
+	m_imageformat = a_imageformat;
+
+	m_uiNumMipmaps = 1;
+	m_pMipmapImages = new RawImage[m_uiNumMipmaps];
+	m_pMipmapImages[0].paucEncodingBits = std::shared_ptr<unsigned char>(a_paucEncodingBits, [](unsigned char* p) { delete[] p; });
+	m_pMipmapImages[0].uiEncodingBitsBytes = a_uiEncodingBitsBytes;
+	m_pMipmapImages[0].uiExtendedWidth = a_uiExtendedWidth;
+	m_pMipmapImages[0].uiExtendedHeight = a_uiExtendedHeight;
+
+	m_uiSourceWidth = a_uiSourceWidth;
+	m_uiSourceHeight = a_uiSourceHeight;
+
+	m_uix0 = a_uix0; m_uiy0 = a_uiy0;
+	m_uix1 = a_uix1; m_uiy1 = a_uiy1;
+
+	m_uiKeyIndex = a_uiKeyIndex;
+
+	switch (m_fileformat)
+	{
+	case Format::PKM:
+		m_pheader = new FileHeader_Pkm(this);
+		break;
+
+	case Format::KTX:
+		m_pheader = new FileHeader_Ktx(this);
+		break;
+
+	case Format::ST2:
+		m_pheader = new FileHeader_St2(this);
+		break;
+
+	default:
+		assert(0);
+		break;
+	}
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -144,6 +207,8 @@ File::File(const char *a_pstrFilename, Format a_fileformat, Image::Format a_imag
 
 // ----------------------------------------------------------------------------------------------------
 //
+
+// TODO. ST2 파일 검증코드가 필요합니다 ㅠㅠ ;;; 후...
 File::File(const char *a_pstrFilename, Format a_fileformat)
 {
 	if (a_pstrFilename == nullptr)
@@ -371,6 +436,11 @@ void File::Write()
 			uint32_t u32ImageSize = m_pMipmapImages[mip].uiEncodingBitsBytes;
 			uint32_t szBytesWritten = fwrite(&u32ImageSize, 1, sizeof(u32ImageSize), pfile);
 			assert(szBytesWritten == sizeof(u32ImageSize));
+		}
+
+		if (m_fileformat == Format::ST2)
+		{
+			// source width + uv == extended width
 		}
 
 		unsigned int iResult = (int)fwrite(m_pMipmapImages[mip].paucEncodingBits.get(), 1, m_pMipmapImages[mip].uiEncodingBitsBytes, pfile);

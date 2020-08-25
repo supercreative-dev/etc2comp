@@ -84,7 +84,6 @@ namespace Etc
 									unsigned char *a_paucEncodingBits,
 									ErrorMetric a_errormetric)
 	{
-
 		Block4x4();
 
 		m_pimageSource = a_pimageSource;
@@ -251,7 +250,6 @@ namespace Etc
 	//
 	void Block4x4::SetSourcePixels(void)
 	{
-
 		Image::Format imageformat = m_pimageSource->GetFormat();
 
 		// alpha census
@@ -269,114 +267,135 @@ namespace Etc
 			{
 				unsigned int uiSourcePixelV = m_uiSourceV + uiBlockPixelV;
 
-				ColorFloatRGBA *pfrgbaSource = m_pimageSource->GetSourcePixel(uiSourcePixelH, uiSourcePixelV);
-
-				// if pixel extends beyond source image because of block padding
-				if (pfrgbaSource == nullptr)
+				if ( m_pimageSource->GetFormat() == Etc::Image::Format::RGBA8 &&
+					(uiSourcePixelH == 0 || uiSourcePixelV == 0))
 				{
-					m_afrgbaSource[uiPixel] = ColorFloatRGBA(0.0f, 0.0f, 0.0f, NAN);	// denotes border pixel
+					// add custom alpha border pixel to very left or top pixel of the image by hp8840
+					m_afrgbaSource[uiPixel] = ColorFloatRGBA(0.0f, 0.0f, 0.0f, 0.0f);	// denotes border pixel
 					m_boolBorderPixels = true;
 					uiTransparentSourcePixels++;
 				}
 				else
 				{
-					//get teh current pixel data, and store some of the attributes
-					//before capping values to fit the encoder type
-					
-					m_afrgbaSource[uiPixel] = (*pfrgbaSource).ClampRGBA();
+					ColorFloatRGBA* pfrgbaSource = nullptr;
 
-					if (m_afrgbaSource[uiPixel].fA == 1.0f || m_errormetric == RGBX)
+					if (m_pimageSource->GetFormat() == Etc::Image::Format::RGBA8)
 					{
-						m_pimageSource->m_iNumOpaquePixels++;
-					}
-					else if (m_afrgbaSource[uiPixel].fA == 0.0f)
-					{
-						m_pimageSource->m_iNumTransparentPixels++;
-					}
-					else if(m_afrgbaSource[uiPixel].fA > 0.0f && m_afrgbaSource[uiPixel].fA < 1.0f)
-					{
-						m_pimageSource->m_iNumTranslucentPixels++;
+						assert(uiSourcePixelH > 0 && uiSourcePixelV > 0);
+						pfrgbaSource = m_pimageSource->GetSourcePixel(uiSourcePixelH - 1, uiSourcePixelV - 1);
 					}
 					else
 					{
-						m_pimageSource->m_numOutOfRangeValues.fA++;
+						pfrgbaSource = m_pimageSource->GetSourcePixel(uiSourcePixelH, uiSourcePixelV);
 					}
 
-					if (m_afrgbaSource[uiPixel].fR != 0.0f)
+					// if pixel extends beyond source image because of block padding
+					if (pfrgbaSource == nullptr)
 					{
-						m_pimageSource->m_numColorValues.fR++;
-						//make sure we are getting a float between 0-1
-						if (m_afrgbaSource[uiPixel].fR - 1.0f > 0.0f)
+						m_afrgbaSource[uiPixel] = ColorFloatRGBA(0.0f, 0.0f, 0.0f, 0.0f);	// denotes border pixel
+						m_boolBorderPixels = true;
+						uiTransparentSourcePixels++;
+					}
+					else
+					{
+						//get teh current pixel data, and store some of the attributes
+						//before capping values to fit the encoder type
+
+						m_afrgbaSource[uiPixel] = (*pfrgbaSource).ClampRGBA();
+
+						if (m_afrgbaSource[uiPixel].fA == 1.0f || m_errormetric == RGBX)
 						{
-							m_pimageSource->m_numOutOfRangeValues.fR++;
+							m_pimageSource->m_iNumOpaquePixels++;
 						}
-					}
-
-					if (m_afrgbaSource[uiPixel].fG != 0.0f)
-					{
-						m_pimageSource->m_numColorValues.fG++;
-						if (m_afrgbaSource[uiPixel].fG - 1.0f > 0.0f)
+						else if (m_afrgbaSource[uiPixel].fA == 0.0f)
 						{
-							m_pimageSource->m_numOutOfRangeValues.fG++;
+							m_pimageSource->m_iNumTransparentPixels++;
 						}
-					}
-					if (m_afrgbaSource[uiPixel].fB != 0.0f)
-					{
-						m_pimageSource->m_numColorValues.fB++;
-						if (m_afrgbaSource[uiPixel].fB - 1.0f > 0.0f)
+						else if (m_afrgbaSource[uiPixel].fA > 0.0f && m_afrgbaSource[uiPixel].fA < 1.0f)
 						{
-							m_pimageSource->m_numOutOfRangeValues.fB++;
-						}
-					}
-					// for formats with no alpha, set source alpha to 1
-					if (imageformat == Image::Format::ETC1 ||
-						imageformat == Image::Format::RGB8 ||
-						imageformat == Image::Format::SRGB8)
-					{
-						m_afrgbaSource[uiPixel].fA = 1.0f;
-					}
-
-					if (imageformat == Image::Format::R11 ||
-						imageformat == Image::Format::SIGNED_R11)
-					{
-						m_afrgbaSource[uiPixel].fA = 1.0f;
-						m_afrgbaSource[uiPixel].fG = 0.0f;
-						m_afrgbaSource[uiPixel].fB = 0.0f;
-					}
-
-					if (imageformat == Image::Format::RG11 ||
-						imageformat == Image::Format::SIGNED_RG11)
-					{
-						m_afrgbaSource[uiPixel].fA = 1.0f;
-						m_afrgbaSource[uiPixel].fB = 0.0f;
-					}
-
-				
-					// for RGB8A1, set source alpha to 0.0 or 1.0
-					// set punch through flag
-					if (imageformat == Image::Format::RGB8A1 ||
-						imageformat == Image::Format::SRGB8A1)
-					{
-						if (m_afrgbaSource[uiPixel].fA >= 0.5f)
-						{
-							m_afrgbaSource[uiPixel].fA = 1.0f;
+							m_pimageSource->m_iNumTranslucentPixels++;
 						}
 						else
 						{
-							m_afrgbaSource[uiPixel].fA = 0.0f;
-							m_boolPunchThroughPixels = true;
+							m_pimageSource->m_numOutOfRangeValues.fA++;
 						}
-					}
 
-					if (m_afrgbaSource[uiPixel].fA == 1.0f || m_errormetric == RGBX)
-					{
-						uiOpaqueSourcePixels++;
-					}
-					else if (m_afrgbaSource[uiPixel].fA == 0.0f)
-					{
-						uiTransparentSourcePixels++;
-					}
+						if (m_afrgbaSource[uiPixel].fR != 0.0f)
+						{
+							m_pimageSource->m_numColorValues.fR++;
+							//make sure we are getting a float between 0-1
+							if (m_afrgbaSource[uiPixel].fR - 1.0f > 0.0f)
+							{
+								m_pimageSource->m_numOutOfRangeValues.fR++;
+							}
+						}
 
+						if (m_afrgbaSource[uiPixel].fG != 0.0f)
+						{
+							m_pimageSource->m_numColorValues.fG++;
+							if (m_afrgbaSource[uiPixel].fG - 1.0f > 0.0f)
+							{
+								m_pimageSource->m_numOutOfRangeValues.fG++;
+							}
+						}
+						if (m_afrgbaSource[uiPixel].fB != 0.0f)
+						{
+							m_pimageSource->m_numColorValues.fB++;
+							if (m_afrgbaSource[uiPixel].fB - 1.0f > 0.0f)
+							{
+								m_pimageSource->m_numOutOfRangeValues.fB++;
+							}
+						}
+						// for formats with no alpha, set source alpha to 1
+						if (imageformat == Image::Format::ETC1 ||
+							imageformat == Image::Format::RGB8 ||
+							imageformat == Image::Format::SRGB8)
+						{
+							m_afrgbaSource[uiPixel].fA = 1.0f;
+						}
+
+						if (imageformat == Image::Format::R11 ||
+							imageformat == Image::Format::SIGNED_R11)
+						{
+							m_afrgbaSource[uiPixel].fA = 1.0f;
+							m_afrgbaSource[uiPixel].fG = 0.0f;
+							m_afrgbaSource[uiPixel].fB = 0.0f;
+						}
+
+						if (imageformat == Image::Format::RG11 ||
+							imageformat == Image::Format::SIGNED_RG11)
+						{
+							m_afrgbaSource[uiPixel].fA = 1.0f;
+							m_afrgbaSource[uiPixel].fB = 0.0f;
+						}
+
+
+						// for RGB8A1, set source alpha to 0.0 or 1.0
+						// set punch through flag
+						if (imageformat == Image::Format::RGB8A1 ||
+							imageformat == Image::Format::SRGB8A1)
+						{
+							if (m_afrgbaSource[uiPixel].fA >= 0.5f)
+							{
+								m_afrgbaSource[uiPixel].fA = 1.0f;
+							}
+							else
+							{
+								m_afrgbaSource[uiPixel].fA = 0.0f;
+								m_boolPunchThroughPixels = true;
+							}
+						}
+
+						if (m_afrgbaSource[uiPixel].fA == 1.0f || m_errormetric == RGBX)
+						{
+							uiOpaqueSourcePixels++;
+						}
+						else if (m_afrgbaSource[uiPixel].fA == 0.0f)
+						{
+							uiTransparentSourcePixels++;
+						}
+
+					}
 				}
 
 				uiPixel += 1;

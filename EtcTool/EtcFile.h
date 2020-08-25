@@ -34,13 +34,21 @@ namespace Etc
 			INFER_FROM_FILE_EXTENSION,
 			PKM,
 			KTX,
-			SCX,	// Super Creative Tex..
+			ST2,	// Supercreative Texture 2..
 		};
 
 		File(const char *a_pstrFilename, Format a_fileformat, Image::Format a_imageformat,
 				unsigned char *a_paucEncodingBits, unsigned int a_uiEncodingBitsBytes,
 				unsigned int a_uiSourceWidth, unsigned int a_uiSourceHeight,
 				unsigned int a_uiExtendedWidth, unsigned int a_uiExtendedHeight);
+
+		File(const char* a_pstrFilename, Format a_fileformat, Image::Format a_imageformat,
+			unsigned char* a_paucEncodingBits, unsigned int a_uiEncodingBitsBytes,
+			unsigned int a_uiSourceWidth, unsigned int a_uiSourceHeight,
+			unsigned int a_uiExtendedWidth, unsigned int a_uiExtendedHeight,
+			unsigned int a_uix0, unsigned int a_uiy0,
+			unsigned int a_uix1, unsigned int a_uiy1,
+			unsigned int a_uiKeyIndex);
 
 		File(const char *a_pstrFilename, Format a_fileformat, Image::Format a_imageformat,
 			unsigned int a_uiNumMipmaps, RawImage *pMipmapImages,
@@ -132,6 +140,11 @@ namespace Etc
 		RawImage*	 m_pMipmapImages;
 		unsigned int m_uiSourceWidth;
 		unsigned int m_uiSourceHeight;
+		unsigned int m_uix0;
+		unsigned int m_uiy0;
+		unsigned int m_uix1;
+		unsigned int m_uiy1;
+		unsigned int m_uiKeyIndex;
 	};
 
 }
