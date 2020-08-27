@@ -271,7 +271,7 @@ namespace Etc
 					(uiSourcePixelH == 0 || uiSourcePixelV == 0))
 				{
 					// add custom alpha border pixel to very left or top pixel of the image by hp8840
-					m_afrgbaSource[uiPixel] = ColorFloatRGBA(0.0f, 0.0f, 0.0f, 0.0f);	// denotes border pixel
+					m_afrgbaSource[uiPixel] = ColorFloatRGBA(0.0f, 0.0f, 0.0f, 0.0f);
 					m_boolBorderPixels = true;
 					uiTransparentSourcePixels++;
 				}
@@ -292,7 +292,7 @@ namespace Etc
 					// if pixel extends beyond source image because of block padding
 					if (pfrgbaSource == nullptr)
 					{
-						m_afrgbaSource[uiPixel] = ColorFloatRGBA(0.0f, 0.0f, 0.0f, 0.0f);	// denotes border pixel
+						m_afrgbaSource[uiPixel] = ColorFloatRGBA(0.0f, 0.0f, 0.0f, NAN);	// denotes border pixel
 						m_boolBorderPixels = true;
 						uiTransparentSourcePixels++;
 					}
