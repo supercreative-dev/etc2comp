@@ -47,8 +47,7 @@ namespace Etc
 			unsigned int a_uiSourceWidth, unsigned int a_uiSourceHeight,
 			unsigned int a_uiExtendedWidth, unsigned int a_uiExtendedHeight,
 			unsigned int a_uix0, unsigned int a_uiy0,
-			unsigned int a_uix1, unsigned int a_uiy1,
-			unsigned int a_uiKeyIndex);
+			unsigned int a_uix1, unsigned int a_uiy1);
 
 		File(const char *a_pstrFilename, Format a_fileformat, Image::Format a_imageformat,
 			unsigned int a_uiNumMipmaps, RawImage *pMipmapImages,
@@ -93,6 +92,26 @@ namespace Etc
 			{
 				return 0;
 			}
+		}
+
+		inline unsigned int GetX0()
+		{
+			return m_uix0;
+		}
+
+		inline unsigned int GetY0()
+		{
+			return m_uiy0;
+		}
+
+		inline unsigned int GetX1()
+		{
+			return m_uix1;
+		}
+
+		inline unsigned int GetY1()
+		{
+			return m_uiy1;
 		}
 
 		inline Image::Format GetImageFormat()
@@ -144,7 +163,6 @@ namespace Etc
 		unsigned int m_uiy0;
 		unsigned int m_uix1;
 		unsigned int m_uiy1;
-		unsigned int m_uiKeyIndex;
 	};
 
 }

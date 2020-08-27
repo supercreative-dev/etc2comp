@@ -126,6 +126,26 @@ namespace Etc
 			return m_uiExtendedHeight;
 		}
 
+		inline unsigned int GetX0(void)
+		{
+			return m_uix0;
+		}
+
+		inline unsigned int GetY0(void)
+		{
+			return m_uiy0;
+		}
+
+		inline unsigned int GetX1(void)
+		{
+			return m_uix1;
+		}
+
+		inline unsigned int GetY1(void)
+		{
+			return m_uiy1;
+		}
+
 		inline unsigned int GetNumberOfBlocks()
 		{
 			return m_uiBlockColumns * m_uiBlockRows;
@@ -231,6 +251,12 @@ namespace Etc
 		unsigned int m_uiExtendedHeight;
 		unsigned int m_uiBlockColumns;
 		unsigned int m_uiBlockRows;
+		// uv
+		unsigned int m_uix0;
+		unsigned int m_uiy0;
+		unsigned int m_uix1;
+		unsigned int m_uiy1;
+
 		// intermediate data
 		Block4x4 *m_pablock;
 		// encoding

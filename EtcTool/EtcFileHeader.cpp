@@ -69,14 +69,13 @@ namespace Etc
 		m_pfile = a_pfile;
 
 		static const char s_acMagicNumberData[4] = { 'S', 'T', '2', ' ' };
-		static const char s_acVersionData[2] = { '2', '0' };
+		static const char s_acVersionData[2] = { '1', '0' };
 
 		for (unsigned int ui = 0; ui < sizeof(s_acMagicNumberData); ui++)
 		{
 			m_data.m_acMagicNumber[ui] = s_acMagicNumberData[ui];
 		}
 
-		// 요거 버전정보로 뭘 하려고 했는가?
 		for (unsigned int ui = 0; ui < sizeof(s_acVersionData); ui++)
 		{
 			m_data.m_acVersion[ui] = s_acVersionData[ui];
@@ -104,10 +103,6 @@ namespace Etc
 		m_data.m_ucx1_lsb = (1 + m_pfile->GetSourceWidth()) & 0xFF;
 		m_data.m_ucy1_msb = (unsigned char)((1 + m_pfile->GetSourceHeight()) >> 8);
 		m_data.m_ucy1_lsb = (1 + m_pfile->GetSourceHeight()) & 0xFF;
-
-		// obfuscation key index
-		m_data.m_ucObfusKeyIndex_msb = (unsigned char)(0 >> 8);
-		m_data.m_ucObfusKeyIndex_lsb = 0 & 0xFF;
 	}
 
 	void FileHeader_St2::Write(FILE* a_pfile)

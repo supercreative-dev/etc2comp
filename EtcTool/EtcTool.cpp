@@ -288,7 +288,8 @@ int main(int argc, const char * argv[])
 							commands.format,
 							image.GetEncodingBits(), image.GetEncodingBitsBytes(),
 							image.GetSourceWidth(), image.GetSourceHeight(),
-							image.GetExtendedWidth(), image.GetExtendedHeight());
+							image.GetExtendedWidth(), image.GetExtendedHeight(),
+							image.GetX0(), image.GetY0(), image.GetX1(), image.GetY1());
 
 		etcfile.Write();
 

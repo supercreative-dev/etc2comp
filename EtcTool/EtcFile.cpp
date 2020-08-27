@@ -94,8 +94,7 @@ File::File(const char* a_pstrFilename, Format a_fileformat, Image::Format a_imag
 	unsigned int a_uiSourceWidth, unsigned int a_uiSourceHeight,
 	unsigned int a_uiExtendedWidth, unsigned int a_uiExtendedHeight,
 	unsigned int a_uix0, unsigned int a_uiy0,
-	unsigned int a_uix1, unsigned int a_uiy1,
-	unsigned int a_uiKeyIndex)
+	unsigned int a_uix1, unsigned int a_uiy1)
 {
 	if (a_pstrFilename == nullptr)
 	{
@@ -110,6 +109,7 @@ File::File(const char* a_pstrFilename, Format a_fileformat, Image::Format a_imag
 	m_fileformat = a_fileformat;
 	if (m_fileformat == Format::INFER_FROM_FILE_EXTENSION)
 	{
+		// TODO. check filename to determine its extension, and ...
 		// ***** TODO: add this later *****
 		m_fileformat = Format::ST2;
 	}
@@ -128,8 +128,6 @@ File::File(const char* a_pstrFilename, Format a_fileformat, Image::Format a_imag
 
 	m_uix0 = a_uix0; m_uiy0 = a_uiy0;
 	m_uix1 = a_uix1; m_uiy1 = a_uiy1;
-
-	m_uiKeyIndex = a_uiKeyIndex;
 
 	switch (m_fileformat)
 	{
@@ -207,8 +205,6 @@ File::File(const char *a_pstrFilename, Format a_fileformat, Image::Format a_imag
 
 // ----------------------------------------------------------------------------------------------------
 //
-
-// TODO. ST2 파일 검증코드가 필요합니다 ㅠㅠ ;;; 후...
 File::File(const char *a_pstrFilename, Format a_fileformat)
 {
 	if (a_pstrFilename == nullptr)
@@ -225,7 +221,7 @@ File::File(const char *a_pstrFilename, Format a_fileformat)
 	if (m_fileformat == Format::INFER_FROM_FILE_EXTENSION)
 	{
 		// ***** TODO: add this later *****
-		m_fileformat = Format::PKM;
+		m_fileformat = Format::KTX;
 	}
 
 	FILE *pfile = fopen(m_pstrFilename, "rb");
@@ -234,10 +230,25 @@ File::File(const char *a_pstrFilename, Format a_fileformat)
 		printf("ERROR: Couldn't open %s", m_pstrFilename);
 		exit(1);
 	}
+
 	fseek(pfile, 0, SEEK_END);
 	unsigned int fileSize = ftell(pfile);
 	fseek(pfile, 0, SEEK_SET);
 	size_t szResult;
+
+	if (m_fileformat == Format::KTX)
+	{
+	}
+	else if (m_fileformat == Format::PKM)
+	{
+	}
+	else if (m_fileformat == Format::ST2)
+	{
+	}
+	else
+	{
+		assert(0);
+	}
 
 	m_pheader = new FileHeader_Ktx(this);
 	szResult = fread( ((FileHeader_Ktx*)m_pheader)->GetData(), 1, sizeof(FileHeader_Ktx::Data), pfile);
@@ -438,11 +449,7 @@ void File::Write()
 			assert(szBytesWritten == sizeof(u32ImageSize));
 		}
 
-		if (m_fileformat == Format::ST2)
-		{
-			// source width + uv == extended width
-		}
-
+		// TODO. remove mipmap later!!
 		unsigned int iResult = (int)fwrite(m_pMipmapImages[mip].paucEncodingBits.get(), 1, m_pMipmapImages[mip].uiEncodingBitsBytes, pfile);
 		if (iResult != m_pMipmapImages[mip].uiEncodingBitsBytes)
 		{
@@ -452,7 +459,6 @@ void File::Write()
 	}
 
 	fclose(pfile);
-
 }
 
 // ----------------------------------------------------------------------------------------------------

@@ -71,6 +71,8 @@ namespace Etc
 		m_iNumOpaquePixels = 0;
 		m_iNumTranslucentPixels = 0;
 		m_iNumTransparentPixels = 0;
+
+		m_uix0 = m_uiy0 = m_uix1 = m_uiy1 = 0;
 	}
 
 
@@ -113,6 +115,8 @@ namespace Etc
 		m_iNumTranslucentPixels = 0;
 		m_iNumTransparentPixels = 0;
 		m_bVerboseOutput = false;
+
+		m_uix0 = m_uiy0 = m_uix1 = m_uiy1 = 0;
 	}
 
 
@@ -139,6 +143,10 @@ namespace Etc
 		{
 			customWidth += 2;
 			customHeight += 2;
+
+			m_uix0 = m_uiy0 = 1;
+			m_uix1 = m_uiSourceWidth;
+			m_uiy1 = m_uiSourceHeight;
 		}
 
 		m_uiExtendedWidth = CalcExtendedDimension(customWidth);

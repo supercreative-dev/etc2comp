@@ -108,10 +108,6 @@ namespace Etc
 			unsigned char m_ucx1_lsb;
 			unsigned char m_ucy1_msb;
 			unsigned char m_ucy1_lsb;
-
-			// obfuscation key index
-			unsigned char m_ucObfusKeyIndex_msb;
-			unsigned char m_ucObfusKeyIndex_lsb;
 		} Data;
 
 		Data m_data;
